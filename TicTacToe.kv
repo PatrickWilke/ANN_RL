@@ -1,0 +1,76 @@
+#:kivy 1.0.9
+
+
+
+<TicTacToeGame>:
+
+    canvas:
+        Rectangle:
+            pos: root.width / 3 - 5, 0
+            size: 10, self.height
+        Rectangle:
+            pos: 2 * root.width / 3 - 5, 0
+            size: 10, self.height
+        Rectangle:
+            pos: 0 , root.top / 3 -5
+            size: self.width, 10
+        Rectangle:
+            pos: 0 , 2 * root.top / 3 - 5
+            size: self.width, 10
+
+    Label:
+        font_size: 150
+        center_x: root.center_x - root.width / 3
+        center_y: root.center_y
+        text: root.display_score_X
+    Label:
+        font_size: 150
+        center_x: root.center_x + root.width / 3
+        center_y: root.center_y
+        text: root.display_score_O
+
+    Label:
+        font_size: 200
+        center_x: root.center_x - root.width / 3
+        center_y: root.center_y + root.top / 3
+        text: str(root.fields[0])
+    Label:
+        font_size: 200
+        center_x: root.center_x
+        center_y: root.center_y + root.top / 3
+        text: str(root.fields[1])
+    Label:
+        font_size: 200
+        center_x: root.center_x + root.width / 3
+        center_y: root.center_y + root.top / 3
+        text: str(root.fields[2])
+    Label:
+        font_size: 200
+        center_x: root.center_x - root.width / 3
+        center_y: root.center_y
+        text: str(root.fields[3])
+    Label:
+        font_size: 200
+        center_x: root.center_x
+        center_y: root.center_y
+        text: str(root.fields[4])
+    Label:
+        font_size: 200
+        center_x: root.center_x + root.width / 3
+        center_y: root.center_y
+        text: str(root.fields[5])
+    Label:
+        font_size: 200
+        center_x: root.center_x - root.width / 3
+        center_y: root.center_y - root.top / 3
+        text: str(root.fields[6])
+    Label:
+        font_size: 200
+        center_x: root.center_x
+        center_y: root.center_y - root.top / 3
+        text: str(root.fields[7])
+    Label:
+        font_size: 200
+        center_x: root.center_x + root.width / 3
+        center_y: root.center_y - root.top / 3
+        text: str(root.fields[8])
