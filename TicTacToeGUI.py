@@ -7,24 +7,23 @@ import TicTacToeBoard as TTTB
 import ANN
 
 
-load_path = "./TicTacToeEasy"
-AI_for_X = False
-AI_for_O = True
+load_path = "./TicTacToeHard"
+AI_for_X = True
+AI_for_O = False
+
 
 class TicTacToeGame(Widget):
 
-    board = TTTB.TicTacToeBoard()
-
-    fields = ListProperty(["","","","","","","","",""])
-
+    fields = ListProperty(["", "", "", "", "", "", "", "", ""])
     display_score_X = StringProperty("")
     display_score_O = StringProperty("")
-
-
+    score = [0, 0]
+    board = TTTB.TicTacToeBoard()
     game_ended = False
     show_score = False
+    first_move = True
 
-    score = [0,0]
+
 
 
     def SetField(self, row, column):
@@ -46,6 +45,7 @@ class TicTacToeGame(Widget):
         self.display_score_X = ""
         self.display_score_O = ""
         if AI_for_X and not AI_for_O:
+            self.first_move = True
             self.AIMakeMove()
 
     def NormalGameMove(self, row, column):
@@ -61,7 +61,12 @@ class TicTacToeGame(Widget):
 
     def AIMakeMove(self):
         state = self.board.GetSate()
-        action = ANN.GetOptimalAction(state)
+        if self.first_move:
+            action = ANN.WeightedAction(state)
+            self.first_move = False
+        else:
+            action = ANN.GetOptimalAction(state)
+
         if self.board.SiteIsOccupied(action // 3, action % 3):
             print("AI made prohibited move. Game counts as Draw.")
             self.game_ended = True

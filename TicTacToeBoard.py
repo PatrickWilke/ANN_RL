@@ -83,8 +83,8 @@ class LearningBoard(TicTacToeBoard):
             return self.neutral_action_reward, False
 
 
-store_path = "./TicTacToeNewTraining"
+store_path = "TicTacToeNewTraining"
 
 if __name__ == '__main__':
     board = LearningBoard()
-    ANN.SARSA_Training(board,store_path,1000)
+    ANN.SARSA_Training(board,store_path,500)

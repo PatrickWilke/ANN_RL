@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import os
+from numpy.random import choice
 
 epsilon = 0.05
 
@@ -31,6 +32,11 @@ def EpsilonGreedyAction(state_given):
         return np.random.randint(n_outputs)
     else:
         return GetOptimalAction(state_given)
+
+def WeightedAction(state_given):
+    weights = outputs.eval(feed_dict={state: [state_given]})[0]
+    probs = weights/np.sum(weights)
+    return choice(np.array(range(0,9)),p=probs)
 
 
 def SARSA_Training(game_to_train, store_path, number_of_replays, discount = 0.99, learning_rate = 0.001, momentum = 0.95, epsilon_max = 0.15, epsilon_min = 0.02):
