@@ -4,6 +4,7 @@ import os
 from numpy.random import choice
 
 
+
 class TrainingNetwork:
 
     def __init__(self, n_inputs, n_outputs, epsilon, hidden_layers_sizes):
@@ -20,9 +21,12 @@ class TrainingNetwork:
         with tf.name_scope('dnn'):
 
             self.hidden_layers.append(tf.layers.dense(self.state, hidden_layers_sizes[0], name='hidden1', activation=tf.nn.relu))
-            for layer_index in range(1,len(hidden_layers_sizes)-1):
+            for layer_index in range(1,len(hidden_layers_sizes)):
                 self.hidden_layers.append(tf.layers.dense(self.hidden_layers[layer_index-1], hidden_layers_sizes[layer_index], name='hidden'+str(layer_index+1), activation=tf.nn.relu))
             self.outputs = tf.layers.dense(self.hidden_layers[-1], n_outputs, name='outputs', activation=tf.nn.relu)
+
+
+
 
 
     def GetOptimalAction(self, state_given):
@@ -53,10 +57,9 @@ class TrainingNetwork:
             optimizer = tf.train.MomentumOptimizer(learning_rate, momentum)
             training_op = optimizer.minimize(TD_error)
 
-
         root_logdir = "tf_logs"
         log_dir = "{}/{}/".format(root_logdir, store_path)
-        if not os.path.isdir("./" + log_dir):
+        if not os.path.isdir(log_dir):
             file_writer = tf.summary.FileWriter(log_dir, tf.get_default_graph())
             file_writer.close()
 
@@ -64,6 +67,8 @@ class TrainingNetwork:
         saver = tf.train.Saver()
 
         with tf.Session() as sess:
+
+
 
             if os.path.isfile(store_path + ".index"):
                 saver.restore(sess, store_path)

@@ -88,4 +88,4 @@ TicTacToeANN = ANN.TrainingNetwork(18, 9, 0.05, [50, 50, 50])
 
 if __name__ == '__main__':
     board = LearningBoard()
-    TicTacToeANN.SARSA_Training(board,store_path,10000)
+    TicTacToeANN.SARSA_Training(board,store_path,25000)

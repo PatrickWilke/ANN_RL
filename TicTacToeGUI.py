@@ -7,7 +7,7 @@ import TicTacToeBoard as TTTB
 import ANN
 
 
-load_path = "./TicTacToeHard"
+load_path = "./TicTacToeEasy"
 AI_for_X = True
 AI_for_O = False
 
