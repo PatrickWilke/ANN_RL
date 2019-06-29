@@ -62,10 +62,10 @@ class TicTacToeGame(Widget):
     def AIMakeMove(self):
         state = self.board.GetSate()
         if self.first_move:
-            action = ANN.WeightedAction(state)
+            action = TTTB.TicTacToeANN.WeightedAction(state)
             self.first_move = False
         else:
-            action = ANN.GetOptimalAction(state)
+            action = TTTB.TicTacToeANN.GetOptimalAction(state)
 
         if self.board.SiteIsOccupied(action // 3, action % 3):
             print("AI made prohibited move. Game counts as Draw.")
