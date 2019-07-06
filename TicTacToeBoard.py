@@ -82,9 +82,9 @@ class LearningBoard(TicTacToeBoard):
             return self.neutral_action_reward, False
 
 
-store_path = "TicTacToeNewTraining"
+store_path = "TicTacToeNewTraining2"
 TicTacToeANN = ANN.TrainingNetwork(18, 9, 0.05, [50, 50, 50])
 
 if __name__ == '__main__':
     board = LearningBoard()
-    TicTacToeANN.SARSA_Training(board,store_path,25000)
+    TicTacToeANN.Training_1v1_Episodic(board,store_path,50000)

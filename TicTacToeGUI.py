@@ -7,9 +7,9 @@ import TicTacToeBoard as TTTB
 import ANN
 
 
-load_path = "./TicTacToeEasy"
-AI_for_X = True
-AI_for_O = False
+load_path = "./TicTacToeNewTraining2"
+AI_for_X = False
+AI_for_O = True
 
 
 class TicTacToeGame(Widget):

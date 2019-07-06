@@ -18,6 +18,7 @@ class TrainingNetwork:
         self.target_value = tf.placeholder(tf.float32, shape=(None), name='target')
 
         self.hidden_layers = []
+
         with tf.name_scope('dnn'):
 
             self.hidden_layers.append(tf.layers.dense(self.state, hidden_layers_sizes[0], name='hidden1', activation=tf.nn.relu))
@@ -25,8 +26,11 @@ class TrainingNetwork:
                 self.hidden_layers.append(tf.layers.dense(self.hidden_layers[layer_index-1], hidden_layers_sizes[layer_index], name='hidden'+str(layer_index+1), activation=tf.nn.relu))
             self.outputs = tf.layers.dense(self.hidden_layers[-1], n_outputs, name='outputs', activation=tf.nn.relu)
 
+        self.lower_bound = tf.Variable(0.0, name="lower_bound")
 
+        self.q_value = tf.reduce_sum(self.outputs * tf.one_hot(self.action, self.n_outputs),axis=1,keepdims=True) + self.lower_bound
 
+        self.q_max = tf.reduce_max(self.outputs,axis=1) + self.lower_bound
 
     def GetOptimalAction(self, state_given):
         list_of_q_values = self.outputs.eval(feed_dict={self.state: [state_given]})[0]
@@ -46,14 +50,63 @@ class TrainingNetwork:
         probs = weights/np.sum(weights)
         return choice(np.array(range(0,self.n_outputs)),p=probs)
 
+    def CreateSingleReplay(self, game_to_train):
 
-    def SARSA_Training(self, game_to_train, store_path, number_of_replays, discount = 0.99, learning_rate = 0.001, momentum = 0.95, epsilon_max = 0.15, epsilon_min = 0.02):
+        replay = [[], [], []]
+        game_ended = False
+        game_to_train.ResetGame()
 
-        lower_bound = tf.Variable(game_to_train.prohibited_action_reward, name = "lower_bound")
-        q_value = tf.reduce_sum(self.outputs * tf.one_hot(self.action, self.n_outputs), axis=1, keep_dims=True) + lower_bound
+        current_state = game_to_train.GetSate()
+        chosen_action = np.random.randint(0,self.n_outputs)
+        reward, game_ended = game_to_train.MakeMoveWithReward(chosen_action)
+
+        replay[0].append(current_state)
+        replay[1].append(chosen_action)
+        replay[2].append(reward)
+
+        while (not game_ended):
+            current_state = game_to_train.GetSate()
+            chosen_action = self.EpsilonGreedyAction(current_state)
+            reward, game_ended = game_to_train.MakeMoveWithReward(chosen_action)
+
+            replay[0].append(current_state)
+            replay[1].append(chosen_action)
+            replay[2].append(reward)
+
+        if 1 < len(replay[2]):
+
+            if (replay[2][-1] == game_to_train.winning_action_reward):
+                replay[2][-2] = game_to_train.loosing_action_reward
+
+        return replay
+
+    def SARSA_1v1_Episodic(self, replay, discount):
+
+
+        target_reward = np.array(replay[2])
+        if 2 < len(target_reward):
+            target_reward[:-2] += discount * self.q_value.eval(feed_dict={self.state: replay[0][2:], self.action: replay[1][2:]}).flatten()
+
+        return target_reward
+
+    def Q_Learning_1v1_Episodic(self, replay, discount):
+
+        target_reward = np.array(replay[2])
+        if 2 < len(target_reward):
+            target_reward[:-2] += discount * self.q_max.eval(feed_dict={self.state: replay[0][2:]})
+
+        return target_reward
+
+
+
+    def Training_1v1_Episodic(self, game_to_train, store_path, number_of_replays, discount = 0.99, learning_rate = 0.001, momentum = 0.95, epsilon_max = 0.15, epsilon_min = 0.02):
+
+        temp_epsilon = self.epsilon
+
+        self.lower_bound.assign(game_to_train.prohibited_action_reward)
 
         with tf.name_scope('loss'):
-            TD_error = tf.reduce_mean(tf.square(self.target_value - q_value))
+            TD_error = tf.reduce_mean(tf.square(self.target_value - self.q_value))
 
 
         with tf.name_scope('train'):
@@ -71,8 +124,6 @@ class TrainingNetwork:
 
         with tf.Session() as sess:
 
-
-
             if os.path.isfile(store_path + ".index"):
                 saver.restore(sess, store_path)
             else:
@@ -82,52 +133,18 @@ class TrainingNetwork:
 
             for k in range(0, number_of_replays):
 
-                replay = [[], [], []]
-                game_ended = False
-                game_to_train.ResetGame()
+                replay = self.CreateSingleReplay(game_to_train)
 
-                current_state = np.array(game_to_train.GetSate(), copy=True)
-                chosen_action = np.random.randint(self.n_outputs)
-                reward, game_ended = game_to_train.MakeMoveWithReward(chosen_action)
+                target_reward = self.Q_Learning_1v1_Episodic(replay, discount)
 
-                replay[0].append(current_state)
-                replay[1].append(chosen_action)
-                replay[2].append(reward)
-
-                while (not game_ended):
-
-                    current_state = np.array(game_to_train.GetSate(), copy=True)
-                    chosen_action = self.EpsilonGreedyAction(current_state)
-                    reward, game_ended = game_to_train.MakeMoveWithReward(chosen_action)
-
-                    replay[0].append(current_state)
-                    replay[1].append(chosen_action)
-                    replay[2].append(reward)
-
-
-                target_reward = []
-
-                for j in range(0, len(replay[0]) - 2):
-
-                   target_reward.append(discount * q_value.eval(feed_dict={self.state: [replay[0][j + 2]], self.action: [replay[1][j + 2]]}))
-
-                if 1 < len(replay):
-
-                    if (replay[2][-1] == game_to_train.winning_action_reward):
-                        target_reward.append(game_to_train.loosing_action_reward)
-                    else:
-                        target_reward.append(game_to_train.neutral_action_reward)
-
-                target_reward.append(replay[2][-1])
-                target_reward = np.array(target_reward)
-
-                for j in reversed(range(0, len(replay[0]))):
+                for j in reversed(range(0, len(target_reward))):
                     training_op.run(feed_dict={self.state: [replay[0][j]], self.action: [replay[1][j]], self.target_value: [target_reward[j]]})
 
                 epsilon = epsilon_max - (epsilon_max-epsilon_min)*(k/number_of_replays)
 
             saver.save(sess, store_path)
 
+        self.epsilon = temp_epsilon
 
 
 
