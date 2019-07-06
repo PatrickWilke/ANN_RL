@@ -28,9 +28,10 @@ class TrainingNetwork:
 
 
 
-
     def GetOptimalAction(self, state_given):
-        return np.argmax(self.outputs.eval(feed_dict={self.state: [state_given]}))
+        list_of_q_values = self.outputs.eval(feed_dict={self.state: [state_given]})[0]
+        all_candidates = np.argwhere(list_of_q_values == np.amax(list_of_q_values))
+        return np.random.choice(all_candidates.flatten())
 
     def EpsilonGreedyAction(self, state_given):
         if np.random.rand()<self.epsilon:
@@ -40,8 +41,10 @@ class TrainingNetwork:
 
     def WeightedAction(self, state_given):
         weights = self.outputs.eval(feed_dict={self.state: [state_given]})[0]
+        if np.sum(weights) == 0:
+            return np.random.randint(self.n_outputs)
         probs = weights/np.sum(weights)
-        return choice(np.array(range(0,9)),p=probs)
+        return choice(np.array(range(0,self.n_outputs)),p=probs)
 
 
     def SARSA_Training(self, game_to_train, store_path, number_of_replays, discount = 0.99, learning_rate = 0.001, momentum = 0.95, epsilon_max = 0.15, epsilon_min = 0.02):

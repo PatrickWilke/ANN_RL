@@ -1,6 +1,5 @@
 import numpy as np
 import ANN
-import tensorflow as tf
 
 class TicTacToeBoard:
 
