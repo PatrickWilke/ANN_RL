@@ -107,4 +107,4 @@ load_path = "./FourInARowNewTraining"
 
 if __name__ == '__main__':
     board = LearningFourInARow()
-    FourInARowANN.SARSA_Training(board,store_path,50000)
+    FourInARowANN.Training_1v1_Episodic(board,store_path,30000)

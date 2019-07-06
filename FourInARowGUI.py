@@ -7,7 +7,7 @@ import FourInARow as FIAR
 import ANN
 
 
-load_path = "./FourInARowNewTraining"
+load_path = "./FourInARowVeryEasy"
 AI_for_red = True
 AI_for_yellow = False
 
