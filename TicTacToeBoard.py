@@ -8,13 +8,11 @@ class TicTacToeBoard:
 
 
     def WinningMove(self,row, column):
-        if self.positions[self.next_move, 0, column] and self.positions[self.next_move, 1, column] and self.positions[self.next_move, 2, column]:
+        if np.all(self.positions[self.next_move,:, column]) or np.all(self.positions[self.next_move, row,:]):
             return True
-        if self.positions[self.next_move, row, 0] and self.positions[self.next_move, row, 1] and self.positions[self.next_move, row, 2]:
+        if row == column and np.all(np.diagonal(self.positions[self.next_move])):
             return True
-        if row == column and self.positions[self.next_move, 0, 0] and self.positions[self.next_move, 1, 1] and self.positions[self.next_move, 2, 2]:
-            return True
-        if row == 2-column and self.positions[self.next_move, 0, 2] and self.positions[self.next_move, 1, 1] and self.positions[self.next_move, 2, 0]:
+        if row == 2-column and np.all(np.diagonal(self.positions[self.next_move,:, ::-1])):
             return True
         return False
 

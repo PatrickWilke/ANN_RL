@@ -7,9 +7,9 @@ import TicTacToeBoard as TTTB
 import ANN
 
 
-load_path = "./TicTacToeNewTraining2"
-AI_for_X = False
-AI_for_O = True
+load_path = "./TicTacToeHard"
+AI_for_X = True
+AI_for_O = False
 
 
 class TicTacToeGame(Widget):
@@ -106,10 +106,11 @@ if __name__ == '__main__':
             saver = ANN.tf.train.Saver()
             if ANN.os.path.isfile(load_path + ".index"):
                 saver.restore(sess, load_path)
-            else:
-                print("Path for AI does not exist! Game with completely untrained AI ...")
                 ANN.init.run()
-            TicTacToeApp().run()
+                TicTacToeApp().run()
+            else:
+                print("Path for AI does not exist!")
+
     else:
         TicTacToeApp().run()
 

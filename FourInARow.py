@@ -16,24 +16,22 @@ class FourInARowBoard:
         return self.hights[column] > 5
 
     def WinningMove(self, column, row):
-        number_in_column=1
-        while (0 <= row-number_in_column and self.board[self.next_move][row-number_in_column][column]):
-            number_in_column += 1
-            if number_in_column == 4:
+
+        if self.hights[column] > 3:
+            if np.all(self.board[self.next_move,self.hights[column]-4:self.hights[column],column]):
                 return True
 
-        for col_shift in range(-1,2):
-            number_in_row = 1
-            while (0 <= column - number_in_row and 0<=row+number_in_row*col_shift and row+number_in_row*col_shift<6 and self.board[self.next_move][row+number_in_row*col_shift][column-number_in_row]):
-                number_in_row += 1
-                if number_in_row == 4:
-                    return True
-            other_direction = 1
-            while (column + other_direction < 7 and 0<=row-other_direction*col_shift and row-other_direction*col_shift<6 and self.board[self.next_move][row-other_direction*col_shift][column+other_direction]):
-                number_in_row += 1
-                other_direction +=1
-                if number_in_row == 4:
-                    return True
+        for possible_directions in [self.board[self.next_move,row],np.diagonal(self.board[self.next_move],offset=column-row),
+                                    np.diagonal(self.board[self.next_move,:, ::-1],offset=6-column-row)]:
+            count = 0
+            for element in possible_directions:
+                if element:
+                    count += 1
+                    if count == 4:
+                        return True
+                else:
+                    count = 0
+
         return False
 
     def MakeMove(self,column):
