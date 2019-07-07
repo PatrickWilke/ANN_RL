@@ -32,6 +32,9 @@ class TrainingNetwork:
 
         self.q_max = tf.reduce_max(self.outputs,axis=1) + self.lower_bound
 
+        with tf.name_scope('loss'):
+            self.TD_error = tf.reduce_mean(tf.square(self.target_value - self.q_value))
+
     def GetOptimalAction(self, state_given):
         list_of_q_values = self.outputs.eval(feed_dict={self.state: [state_given]})[0]
         all_candidates = np.argwhere(list_of_q_values == np.amax(list_of_q_values))
@@ -50,7 +53,7 @@ class TrainingNetwork:
         probs = weights/np.sum(weights)
         return choice(np.array(range(0,self.n_outputs)),p=probs)
 
-    def CreateSingleReplay(self, game_to_train):
+    def CreateSingle1v1Replay(self, game_to_train):
 
         replay = [[], [], []]
         game_ended = False
@@ -105,13 +108,9 @@ class TrainingNetwork:
 
         self.lower_bound.assign(game_to_train.prohibited_action_reward)
 
-        with tf.name_scope('loss'):
-            TD_error = tf.reduce_mean(tf.square(self.target_value - self.q_value))
-
-
         with tf.name_scope('train'):
             optimizer = tf.train.MomentumOptimizer(learning_rate, momentum)
-            training_op = optimizer.minimize(TD_error)
+            training_op = optimizer.minimize(self.TD_error)
 
         root_logdir = "tf_logs"
         log_dir = "{}/{}/".format(root_logdir, store_path)
@@ -133,12 +132,12 @@ class TrainingNetwork:
 
             for k in range(0, number_of_replays):
 
-                replay = self.CreateSingleReplay(game_to_train)
+                replay = self.CreateSingle1v1Replay(game_to_train)
 
                 target_reward = self.Q_Learning_1v1_Episodic(replay, discount)
 
-                for j in reversed(range(0, len(target_reward))):
-                    training_op.run(feed_dict={self.state: [replay[0][j]], self.action: [replay[1][j]], self.target_value: [target_reward[j]]})
+                for state_it, action_it, target_it in zip(replay[0][::-1], replay[1][::-1], target_reward[::-1]):
+                    training_op.run(feed_dict={self.state: [state_it], self.action: [action_it], self.target_value: [target_it]})
 
                 epsilon = epsilon_max - (epsilon_max-epsilon_min)*(k/number_of_replays)
 

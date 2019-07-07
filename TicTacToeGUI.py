@@ -40,7 +40,7 @@ class TicTacToeGame(Widget):
         self.display_score_X = "X:" + str(self.score[0])
         self.display_score_O = "O:" + str(self.score[1])
 
-    def RestartGameAfterScore(self):
+    def RstartGameAfterScore(self):
         self.show_score = False
         self.display_score_X = ""
         self.display_score_O = ""
@@ -50,14 +50,12 @@ class TicTacToeGame(Widget):
 
     def NormalGameMove(self, row, column):
 
-        if not self.board.SiteIsOccupied(row, column):
-            self.SetField(row, column)
-            if self.board.MakeMove(row, column):
-                self.score[self.board.GetNextMove()] += 1
-                self.game_ended = True
-
-            elif self.board.GameEnded():
-                self.game_ended = True
+        self.SetField(row, column)
+        if self.board.MakeMove(row, column):
+            self.score[self.board.GetNextMove()] += 1
+            self.game_ended = True
+        elif self.board.GameEnded():
+            self.game_ended = True
 
     def AIMakeMove(self):
         state = self.board.GetSate()
@@ -84,6 +82,8 @@ class TicTacToeGame(Widget):
             if not (AI_for_O and AI_for_X):
                 row = int(2 - (3 * touch.y) // self.top)
                 column = int((3 * touch.x) // self.width)
+                if self.board.SiteIsOccupied(row, column):
+                    return
                 self.NormalGameMove(row, column)
             if AI_for_X and not self.game_ended:
                 self.AIMakeMove()
@@ -106,7 +106,6 @@ if __name__ == '__main__':
             saver = ANN.tf.train.Saver()
             if ANN.os.path.isfile(load_path + ".index"):
                 saver.restore(sess, load_path)
-                ANN.init.run()
                 TicTacToeApp().run()
             else:
                 print("Path for AI does not exist!")

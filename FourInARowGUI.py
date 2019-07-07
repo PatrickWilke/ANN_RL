@@ -61,13 +61,12 @@ class BoardGrafics(Widget):
             self.AIMakeMove()
 
     def NormalGameMove(self, column):
-        if not self.board.ColumnIsFull(column):
-            self.SetColumn(column)
-            if self.board.MakeMove(column):
-                self.score[self.board.GetNextMove()] += 1
-                self.game_ended = True
-            elif self.board.GameEnded():
-                self.game_ended = True
+        self.SetColumn(column)
+        if self.board.MakeMove(column):
+            self.score[self.board.GetNextMove()] += 1
+            self.game_ended = True
+        elif self.board.GameEnded():
+            self.game_ended = True
 
     def AIMakeMove(self):
         state = self.board.GetSate()
@@ -91,6 +90,8 @@ class BoardGrafics(Widget):
         else:
             if not (AI_for_yellow and AI_for_red):
                 column = int((7 * touch.x) // self.width)
+                if self.board.ColumnIsFull(column):
+                    return
                 self.NormalGameMove(column)
             if AI_for_red and not self.game_ended:
                 self.AIMakeMove()
@@ -116,10 +117,10 @@ if __name__ == '__main__':
             saver = ANN.tf.train.Saver()
             if ANN.os.path.isfile(load_path + ".index"):
                 saver.restore(sess, load_path)
+                FourInARowApp().run()
             else:
-                print("Path for AI does not exist! Game with completely untrained AI ...")
-                ANN.init.run()
-            FourInARowApp().run()
+                print("Path for AI does not exist!")
+
     else:
         FourInARowApp().run()
 

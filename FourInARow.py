@@ -98,10 +98,8 @@ class LearningFourInARow(FourInARowBoard):
             return self.neutral_action_reward, False
 
 
-store_path = "FourInARowNewTraining"
+store_path = "FourInARowVeryEasy"
 FourInARowANN = ANN.TrainingNetwork(84, 7, 0.05, [50, 50, 50])
-
-load_path = "./FourInARowNewTraining"
 
 if __name__ == '__main__':
     board = LearningFourInARow()
