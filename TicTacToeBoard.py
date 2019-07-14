@@ -85,5 +85,5 @@ TicTacToeANN = ANN.TrainingNetwork(18, 9, 0.05, [50, 50, 50])
 
 if __name__ == '__main__':
     board = LearningBoard()
-    #TicTacToeANN.Training_Episodic_Decorrelated_Batches(board,store_path,5000, 50, 5)
+    #TicTacToeANN.Training_Episodic_Decorrelated_Batches(board,store_path,500, 50, 5, TicTacToeANN.SARSA_Episodic)
     TicTacToeANN.Training_Episodic_Single_Matches_Reverse(board,store_path,25000, TicTacToeANN.SARSA_Episodic_Single_Game)

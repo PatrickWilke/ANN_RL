@@ -244,7 +244,8 @@ class TrainingNetwork:
         self.epsilon = temp_epsilon
 
 
-    def Training_Episodic_Decorrelated_Batches(self, game_to_train, store_path, number_of_replays, games_per_replay, batch_size,is_1v1 = True, epsilon_max = 0.15, epsilon_min = 0.02):
+    def Training_Episodic_Decorrelated_Batches(self, game_to_train, store_path, number_of_replays, games_per_replay,
+                                               batch_size, learning_type,is_1v1 = True, epsilon_max = 0.15, epsilon_min = 0.02):
 
         temp_epsilon = self.epsilon
 
@@ -263,7 +264,7 @@ class TrainingNetwork:
 
                 replay = self.CreateReplay(game_to_train, is_1v1, games_per_replay)
 
-                target_reward = self.Q_Learning_Episodic(replay, is_1v1)
+                target_reward = learning_type(replay, is_1v1)
 
                 overhead = len(target_reward)%batch_size
 

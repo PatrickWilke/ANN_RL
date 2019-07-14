@@ -103,4 +103,5 @@ FourInARowANN = ANN.TrainingNetwork(84, 7, 0.05, [50, 50, 50])
 
 if __name__ == '__main__':
     board = LearningFourInARow()
-    FourInARowANN.Training_Episodic_Single_Matches_Reverse(board,store_path,5000, FourInARowANN.Q_Learning_Episodic_Single_Game)
+    FourInARowANN.Training_Episodic_Single_Matches_Reverse(board,store_path,10000, FourInARowANN.Q_Learning_Episodic_Single_Game)
+    #FourInARowANN.Training_Episodic_Decorrelated_Batches(board,store_path,50, 50, 5, FourInARowANN.Q_Learning_Episodic)
