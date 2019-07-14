@@ -7,7 +7,7 @@ import TicTacToeBoard as TTTB
 import ANN
 
 
-load_path = "./TicTacToeHard"
+load_path = "Trainings/TicTacToeNewTraining"
 AI_for_X = True
 AI_for_O = False
 
@@ -40,7 +40,7 @@ class TicTacToeGame(Widget):
         self.display_score_X = "X:" + str(self.score[0])
         self.display_score_O = "O:" + str(self.score[1])
 
-    def RstartGameAfterScore(self):
+    def RestartGameAfterScore(self):
         self.show_score = False
         self.display_score_X = ""
         self.display_score_O = ""

@@ -98,9 +98,9 @@ class LearningFourInARow(FourInARowBoard):
             return self.neutral_action_reward, False
 
 
-store_path = "FourInARowVeryEasy"
+store_path = "FourInARowNewTraining"
 FourInARowANN = ANN.TrainingNetwork(84, 7, 0.05, [50, 50, 50])
 
 if __name__ == '__main__':
     board = LearningFourInARow()
-    FourInARowANN.Training_1v1_Episodic(board,store_path,30000)
+    FourInARowANN.Training_Episodic_Single_Matches_Reverse(board,store_path,5000, FourInARowANN.Q_Learning_Episodic_Single_Game)

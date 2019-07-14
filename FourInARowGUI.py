@@ -7,7 +7,7 @@ import FourInARow as FIAR
 import ANN
 
 
-load_path = "./FourInARowVeryEasy"
+load_path = "Trainings/FourInARowNewTraining"
 AI_for_red = True
 AI_for_yellow = False
 
@@ -97,7 +97,6 @@ class BoardGrafics(Widget):
                 self.AIMakeMove()
             if AI_for_yellow and not self.game_ended:
                 self.AIMakeMove()
-
 
 
 class FourInARowApp(App):
