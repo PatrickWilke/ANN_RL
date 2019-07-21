@@ -47,16 +47,15 @@ class Maze:
         self.end = np.loadtxt(name + '/end.txt', dtype=int)
         self.walls = np.loadtxt(name + '/walls.txt', dtype=bool)
 
-test = Maze(10,15)
-#test.SetStart(1,1)
-#test.PutWall(9,10)
-#test.PutWall(8,10)
-test.Save('lalala')
 
 name = input('Maze name: ')
 name =  name
 if os.path.isdir('Mazes/'+ name):
     print('Loading existing maze:', name)
+    test = Maze()
+    test.Load(name)
+
 else:
     print('Creating new maze:', name)
+    test = Maze(10, 15)
 
