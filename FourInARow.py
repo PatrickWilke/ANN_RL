@@ -71,7 +71,7 @@ class FourInARowBoard:
     def GetNextMove(self):
         return self.next_move
 
-    def GetSate(self):
+    def GetState(self):
         return self.board.astype(float).flatten()
 
     def GetColumnHight(self, column):

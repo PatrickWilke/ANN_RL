@@ -41,7 +41,7 @@ class TicTacToeBoard:
             self.next_move = 1 - self.next_move
             return False
 
-    def GetSate(self):
+    def GetState(self):
         return self.positions.astype(float).flatten()
 
     def __str__(self):

@@ -3,7 +3,7 @@ import os
 
 class Maze:
 
-    def __init__(self, hight = 10, width = 10):
+    def __init__(self, hight = 5, width = 5):
 
         self.width = width
         self.hight = hight
@@ -47,15 +47,16 @@ class Maze:
         self.end = np.loadtxt(name + '/end.txt', dtype=int)
         self.walls = np.loadtxt(name + '/walls.txt', dtype=bool)
 
+if __name__ == '__main__':
+    name = input('Maze name: ')
+    name =  name
+    if os.path.isdir('Mazes/'+ name):
+        print('Loading existing maze:', name)
+        test = Maze()
+        test.Load(name)
 
-name = input('Maze name: ')
-name =  name
-if os.path.isdir('Mazes/'+ name):
-    print('Loading existing maze:', name)
-    test = Maze()
-    test.Load(name)
-
-else:
-    print('Creating new maze:', name)
-    test = Maze(10, 15)
+    else:
+        print('Creating new maze:', name)
+        test = Maze(5, 5)
+        test.Save(name)
 

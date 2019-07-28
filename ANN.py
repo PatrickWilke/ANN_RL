@@ -31,11 +31,10 @@ class TrainingNetwork:
                 self.hidden_layers.append(tf.keras.layers.Dense(hidden_layers_sizes[layer_index],
                                                                 name='hidden'+str(layer_index+1),
                                                                 activation=tf.nn.relu)(self.hidden_layers[layer_index-1]))
-            self.outputs = tf.keras.layers.Dense(n_outputs, name='outputs', activation=tf.nn.relu)(self.hidden_layers[-1])
+            self.outputs = tf.keras.layers.Dense(n_outputs, name='outputs', activation=tf.keras.activations.linear)(self.hidden_layers[-1])
 
-        self.lower_bound = tf.Variable(0.0, name="lower_bound")
-        self.q_value = tf.reduce_sum(self.outputs * tf.one_hot(self.action, self.n_outputs),axis=1,keepdims=True) + self.lower_bound
-        self.q_max = tf.reduce_max(self.outputs, axis=1) + self.lower_bound
+        self.q_value = tf.reduce_sum(self.outputs * tf.one_hot(self.action, self.n_outputs),axis=1,keepdims=True)
+        self.q_max = tf.reduce_max(self.outputs, axis=1)
 
         with tf.name_scope('loss'):
             self.TD_error = tf.reduce_mean(tf.square(self.target_value - self.q_value))
@@ -48,8 +47,8 @@ class TrainingNetwork:
             self.training_op = self.optimizer.minimize(self.TD_error)
 
         self.gamma = tf.Variable(discount, name="gamma")
-        self.SARSA_target = self.reward +self.next_state_weight*self.gamma*(tf.reduce_sum(self.outputs * tf.one_hot(self.action, self.n_outputs),axis=1) + self.lower_bound)
-        self.Q_Learning_target = self.reward + self.next_state_weight*self.gamma*(tf.reduce_max(self.outputs,axis=1) + self.lower_bound)
+        self.SARSA_target = self.reward +self.next_state_weight*self.gamma*(tf.reduce_sum(self.outputs * tf.one_hot(self.action, self.n_outputs),axis=1))
+        self.Q_Learning_target = self.reward + self.next_state_weight*self.gamma*(tf.reduce_max(self.outputs,axis=1))
 
 
     def GetOptimalAction(self, state_given):
@@ -66,6 +65,7 @@ class TrainingNetwork:
 
     def WeightedAction(self, state_given):
         weights = self.outputs.eval(feed_dict={self.state: [state_given]})[0]
+        weights -= np.min(weights)
         if np.sum(weights) == 0:
             return np.random.randint(self.n_outputs)
         probs = weights/np.sum(weights)
@@ -78,7 +78,7 @@ class TrainingNetwork:
         game_to_train.ResetGame()
 
         if is_1v1:
-            current_state = game_to_train.GetSate()
+            current_state = game_to_train.GetState()
             chosen_action = np.random.randint(0, self.n_outputs)
             reward, game_ended = game_to_train.MakeMoveWithReward(chosen_action)
 
@@ -87,7 +87,7 @@ class TrainingNetwork:
             replay[2].append(reward)
 
         while (not game_ended):
-            current_state = game_to_train.GetSate()
+            current_state = game_to_train.GetState()
             chosen_action = self.EpsilonGreedyAction(current_state)
             reward, game_ended = game_to_train.MakeMoveWithReward(chosen_action)
 
@@ -139,7 +139,7 @@ class TrainingNetwork:
             game_to_train.ResetGame()
             while (True):
 
-                current_state = game_to_train.GetSate()
+                current_state = game_to_train.GetState()
                 chosen_action = self.EpsilonGreedyAction(current_state)
                 reward, game_ended = game_to_train.MakeMoveWithReward(chosen_action)
 
@@ -217,8 +217,6 @@ class TrainingNetwork:
 
         temp_epsilon = self.epsilon
 
-        self.lower_bound.assign(game_to_train.prohibited_action_reward)
-
         with tf.Session() as sess:
 
             saver, path = self.SetUp_File_System(store_path, sess)
@@ -227,10 +225,11 @@ class TrainingNetwork:
 
             counter = 0
             while counter < number_of_replays:
-                counter += 1
+
 
                 replay = self.CreateSingleReplay(game_to_train, is_1v1)
-
+                if not is_1v1:
+                    print(np.sum(replay[2]))
                 target_reward = learning_type(replay, is_1v1)
 
                 for state_it, action_it, target_it in zip(replay[0][::-1], replay[1][::-1], target_reward[::-1]):
@@ -238,6 +237,7 @@ class TrainingNetwork:
                         feed_dict={self.state: [state_it], self.action: [action_it], self.target_value: [target_it]})
 
                 self.epsilon = epsilon_max - (epsilon_max - epsilon_min) * (counter / number_of_replays)
+                counter += 1
 
             saver.save(sess, path)
 
@@ -263,7 +263,8 @@ class TrainingNetwork:
                 counter += 1
 
                 replay = self.CreateReplay(game_to_train, is_1v1, games_per_replay)
-
+                if not is_1v1:
+                    print(replay[2][-1])
                 target_reward = learning_type(replay, is_1v1)
 
                 overhead = len(target_reward)%batch_size
