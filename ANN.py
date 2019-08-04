@@ -213,7 +213,7 @@ class TrainingNetwork:
         return saver, path
 
     def Training_Episodic_Single_Matches_Reverse(self, game_to_train, store_path, number_of_replays, learning_type, is_1v1 = True,
-                                                epsilon_max = 0.15, epsilon_min = 0.02):
+                                                epsilon_max = 0.15, epsilon_min = 0.02, reverse = True):
 
         temp_epsilon = self.epsilon
 
@@ -231,10 +231,14 @@ class TrainingNetwork:
                 if not is_1v1:
                     print(np.sum(replay[2]))
                 target_reward = learning_type(replay, is_1v1)
-
-                for state_it, action_it, target_it in zip(replay[0][::-1], replay[1][::-1], target_reward[::-1]):
-                    self.training_op.run(
-                        feed_dict={self.state: [state_it], self.action: [action_it], self.target_value: [target_it]})
+                if reverse:
+                    for state_it, action_it, target_it in zip(replay[0][::-1], replay[1][::-1], target_reward[::-1]):
+                        self.training_op.run(
+                            feed_dict={self.state: [state_it], self.action: [action_it], self.target_value: [target_it]})
+                else:
+                    for state_it, action_it, target_it in zip(replay[0], replay[1], target_reward):
+                        self.training_op.run(
+                            feed_dict={self.state: [state_it], self.action: [action_it], self.target_value: [target_it]})
 
                 self.epsilon = epsilon_max - (epsilon_max - epsilon_min) * (counter / number_of_replays)
                 counter += 1

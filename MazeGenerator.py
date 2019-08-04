@@ -57,6 +57,6 @@ if __name__ == '__main__':
 
     else:
         print('Creating new maze:', name)
-        test = Maze(5, 5)
+        test = Maze(10, 10)
         test.Save(name)
 

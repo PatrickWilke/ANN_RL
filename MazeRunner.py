@@ -5,7 +5,7 @@ import numpy as np
 class MazeRunner:
 
     winning_action_reward = 1.0
-    neutral_action_reward = 0.0
+    neutral_action_reward = -0.01
     prohibited_action_reward = -1.0
 
     def __init__(self, maze_name):
@@ -52,7 +52,7 @@ class MazeRunner:
         self.current_position = self.maze.start
 
 store_path = "MazeNewTraining"
-MazeANN = ANN.TrainingNetwork(2, 4, 0.05, [50, 50, 50])
+MazeANN = ANN.TrainingNetwork(2, 4, 0.05, [50, 50, 50],discount=0.95)
 
 def PrintLearnedPath(name):
     runner = MazeRunner(name)
@@ -74,6 +74,6 @@ def PrintLearnedPath(name):
 
 if __name__ == '__main__':
     runner = MazeRunner("test_maze")
-    MazeANN.Training_Episodic_Single_Matches_Reverse(runner,store_path,250, MazeANN.Q_Learning_Episodic_Single_Game,is_1v1=False)
+    MazeANN.Training_Episodic_Single_Matches_Reverse(runner,store_path,250, MazeANN.SARSA_Episodic_Single_Game,is_1v1=False,reverse=False)
 
     PrintLearnedPath("test_maze")
